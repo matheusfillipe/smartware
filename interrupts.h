@@ -12,7 +12,7 @@
             uint16 gdt_codeSegmentSelector;
             uint8 reserved;
             uint8 access;
-            uint8 handleAddressHighBits;
+            uint16 handleAddressHighBits;
             
         } __attribute__((packet)); 
         

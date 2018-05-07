@@ -1,6 +1,6 @@
 #include "interrupts.h"
 
-void printf(char *s);
+void printf(char *str);
 
 InterrupManager::GateDescriptor InterrupManager::interruptDescriptorTable[256];
 
@@ -25,7 +25,7 @@ picSlaveData(0xA1)
     uint16 CodeSegment = gdt -> CodeSegmenteSelector();
     const uint8 IDT_INT=0xE;
     
-    for(uint16 i=0; i<256; i++){
+    for(uint8 i=0; i<256; i++){
         SetInterruptDescriptorTableEntry(i, CodeSegment, &IgnoreInterruptRequest, 0, IDT_INT);
     }
     

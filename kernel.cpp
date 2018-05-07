@@ -2,6 +2,16 @@
 #include "gdt.h"
 #include "interrupts.h"
 
+void clear(){
+    
+    static uint16* VideoMemory = (uint16*) 0xb8000;    
+    static uint8 x=0, y=0;
+    
+    for(y=0; y < 25; y++)
+        for(x = 0; x < 80; x++)
+            VideoMemory[80*y+x] = (VideoMemory[80*y+x] & 0xFF00) | ' ';
+}
+
 void printf(char* str)
 {
     static uint16* VideoMemory = (uint16*) 0xb8000;
@@ -51,10 +61,11 @@ extern "C" void callConstructors()
 
 extern "C" void Main(void* multiboot_structure, unsigned int magicnumber)
 {
-     
+    
+    clear(); 
     printf("\nSMARTWARE\n\n\n");
     printf("BOOTING\n");
-    
+
     GlobalDescriptorTable gdt;
     InterrupManager interrupts(&gdt);
     
