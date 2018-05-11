@@ -1,15 +1,18 @@
-GPPPARAMS = -m32 -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fno-leading-underscore -ggdb3 
+GPPPARAMS = -m32 -Iinclude -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fno-leading-underscore -ggdb3  -Wno-stack-protector -Wwrite-strings -Wno-write-strings 
 ASARAMS = --32
 LDPARAMS = -melf_i386
-objects = loader.o gdt.o port.o interruptstbs.o interrupts.o kernel.o
+objects = obj/loader.o obj/gdt.o obj/drivers/driver.o obj/hardwarecom/port.o obj/hardwarecom/interruptstbs.o obj/hardwarecom/interrupts.o obj/drivers/keyboard.o obj/drivers/mouse.o obj/kernel.o 
 
-%.o: %.cpp
+obj/%.o: src/%.cpp
+	mkdir -p $(@D)
 	gcc $(GPPPARAMS)  -c -o $@ $<
 	
-%.o: %.s
+obj/%.o: src/%.s
+	mkdir -p $(@D)
 	as $(ASARAMS) -o $@ $<
 	
 kernel.bin: linker.ld $(objects)
+	mkdir -p $(@D)
 	ld $(LDPARAMS) -T $< -o $@ $(objects)
 	
 kernel.iso: kernel.bin
@@ -35,7 +38,7 @@ run: kernel.iso
 	
 .PHONY: clean
 clean:
-	rm $(objects)
+	rm -f obj
 	rm -rf iso
 	rm kernel.iso
 	rm kernel.bin

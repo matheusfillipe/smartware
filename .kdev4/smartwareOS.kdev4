@@ -1,10 +1,37 @@
 [Buildset]
 BuildItems=@Variant(\x00\x00\x00\t\x00\x00\x00\x00\x01\x00\x00\x00\x0b\x00\x00\x00\x00\x01\x00\x00\x00\x16\x00s\x00m\x00a\x00r\x00t\x00w\x00a\x00r\x00e\x00O\x00S)
 
+[Cppcheck]
+extraParameters=-I include --enable=all --suppress=missingIncludeSystem .
+useSystemIncludes=true
+
+[CustomDefinesAndIncludes][ProjectPath0]
+Path=.
+parseAmbiguousAsCPP=true
+parserArguments=-ferror-limit=100 -fspell-checking -Wdocumentation -Wunused-parameter -Wunreachable-code -Wall -std=c++11
+parserArgumentsC=-ferror-limit=100 -fspell-checking -Wdocumentation -Wunused-parameter -Wunreachable-code -Wall -std=c99
+
+[CustomDefinesAndIncludes][ProjectPath0][Compiler]
+Name=Clang
+
+[CustomDefinesAndIncludes][ProjectPath0][Includes]
+1=/home/matheus/projects/smartwareOS/
+2=/home/matheus/projects/smartwareOS/include/
+
+[CustomDefinesAndIncludes][ProjectPath1]
+Path=include
+parseAmbiguousAsCPP=true
+parserArguments=-ferror-limit=100 -fspell-checking -Wdocumentation -Wunused-parameter -Wunreachable-code -Wall -std=c++11
+parserArgumentsC=-ferror-limit=100 -fspell-checking -Wdocumentation -Wunused-parameter -Wunreachable-code -Wall -std=c99
+
+[CustomDefinesAndIncludes][ProjectPath1][Compiler]
+Name=Clang
+
 [Launch]
 Launch Configurations=
 
 [MakeBuilder]
+Additional Options=-Iinclude
 Default Target=run
 
 [Project]
