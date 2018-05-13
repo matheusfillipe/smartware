@@ -1,7 +1,8 @@
 GPPPARAMS = -m32 -Iinclude -fno-use-cxa-atexit -nostdlib -fno-builtin -fno-rtti -fno-exceptions -fno-leading-underscore -ggdb3  -Wno-stack-protector -Wwrite-strings -Wno-write-strings 
 ASARAMS = --32
 LDPARAMS = -melf_i386
-objects = obj/loader.o obj/gdt.o obj/drivers/driver.o obj/hardwarecom/port.o obj/hardwarecom/interruptstbs.o obj/hardwarecom/interrupts.o obj/drivers/keyboard.o obj/drivers/mouse.o obj/kernel.o 
+objects = obj/loader.o obj/gdt.o obj/drivers/driver.o obj/common/console.o obj/hardwarecom/port.o obj/hardwarecom/interruptstbs.o obj/hardwarecom/interrupts.o obj/hardwarecom/pci.o obj/drivers/keyboard.o obj/drivers/mouse.o obj/kernel.o 
+ 
 
 obj/%.o: src/%.cpp
 	mkdir -p $(@D)
@@ -14,6 +15,9 @@ obj/%.o: src/%.s
 kernel.bin: linker.ld $(objects)
 	mkdir -p $(@D)
 	ld $(LDPARAMS) -T $< -o $@ $(objects)
+
+qemu: kernel.bin
+	qemu-system-x86_64 -kernel $< -s
 	
 kernel.iso: kernel.bin
 	mkdir iso
@@ -32,13 +36,18 @@ kernel.iso: kernel.bin
 	rm -rf iso
 
 run: kernel.iso
-	(killall VirtualBox; sleep 1) || true
-	VirtualBox --startvm "SmartWare" &
+	#(killall VirtualBox; sleep 1) || true
 	
+	VBoxHeadless  --startvm "SmartWare" -v on --settingspw 123 &
+	krdc vnc://127.0.0.1:3389
+	VBoxManage controlvm SmartWare poweroff soft
+	#Comment the lines above and uncomment this in case you need
+	#VirtualBox  --startvm "SmartWare"
+
 	
 .PHONY: clean
 clean:
-	rm -f obj
+	rm -rf obj
 	rm -rf iso
 	rm kernel.iso
 	rm kernel.bin

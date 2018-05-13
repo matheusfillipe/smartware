@@ -4,6 +4,8 @@
 #include <drivers/keyboard.h>
 #include <drivers/mouse.h>
 #include <drivers/driver.h>
+#include <hardwarecom/pci.h>
+#include <common/console.h>
 
 using namespace smartware;
 using namespace smartware::drivers;
@@ -11,53 +13,8 @@ using namespace smartware::common;
 using namespace smartware::hardwarecom;
 
 
-void clear(){
-    
-    static uint16* VideoMemory = (uint16*) 0xb8000;    
-    static uint8 x=0, y=0;
-    
-    for(y=0; y < 25; y++)
-        for(x = 0; x < 80; x++)
-            VideoMemory[80*y+x] = (VideoMemory[80*y+x] & 0xFF00) | ' ';
-}
 
-void printf(char* str)
-{
-    static uint16* VideoMemory = (uint16*) 0xb8000;
-    
-    static uint8 x=0, y=0;
-    
-    for(int i=0; str[i] !='\0'; ++i){
-        
-        switch(str[i]){
-        
-            case '\n':
-                x=0;
-                y++;
-                break;
-        
-            
-            default:
-                VideoMemory[80*y+x] = (VideoMemory[80*y+x] & 0xFF00) | str[i];
-        
-        }
-        
-        x++;
-        if(x>=80){
-            y++;
-            x=0;
-        }
-        
-        if(y>=25){
-            for(y=0; y < 25; y++)
-                for(x = 0; x < 80; x++)
-                    VideoMemory[80*y+x] = (VideoMemory[80*y+x] & 0xFF00) | ' ';
-                x=0;
-                y=0;
-            
-            }
-    }
-}
+void printf(char*);
 
 void printHex(uint8 key){
     
@@ -66,18 +23,31 @@ void printHex(uint8 key){
         foo[2]=hex[(key >> 4) & 0x0F];
         foo[3] = hex[key & 0x0F];
         printf(foo);
-        printf("\n");               
+       // printf("\n");               
  
 }
 
 
+Console console;
+
 class printKeyboardEventHandler : public keyboardEventHandler{
 public:
      void OnKeyDown(char c){
-         printf(&c);
-   }
+         char* str=" ";
+         str[0]=c;
+                     
+         console.print(str);
+
+    }
     
 };
+
+void printf(char* str)
+{
+    console.print(str);
+
+}
+
 
 
 class ConsoleMouse : public mouseEventHandler{
@@ -159,7 +129,7 @@ extern "C" void callConstructors()
 extern "C" void Main(void* multiboot_structure, unsigned int magicnumber)
 {
     
-    clear(); 
+    console.clear();
     printf("\n           SMARTWARE\n\n\n");
     printf("             BOOTING\n");
     
@@ -177,6 +147,10 @@ extern "C" void Main(void* multiboot_structure, unsigned int magicnumber)
     ConsoleMouse mouse;
     MouseDriver mouseDriver(&interrupts, &mouse);
     driverManager.AddDriver(&mouseDriver);
+    
+    PeripheralComponentInterconneController PCI;
+    PCI.SelectDrivers(&driverManager);
+    
     driverManager.ActivateAll();    
     printf("Drivers Initialized...... .2\n");
     interrupts.Activate();
